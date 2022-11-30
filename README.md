@@ -1,11 +1,28 @@
 # xai-captum-plantdata
 
-인턴십 및 졸업논문 프로젝트로, 식물 및 씨앗 이미지 데이터세트에 대해서 회사에서 사용하는 모델이,  이미지 데이터의 어떤 부분 혹은 패턴으로 모델이 그런 예측을 하는지에 대하여 공부 및 실험한 프로젝트입니다. 
-식물의 종자를 파는 Rijk Zwaan회사에서 제공한 이미지 데이터와 사용하는 회귀모델을 attribution 모델들에 적용하여 테스트 진행하였고, 이미지 데이터에서 하이라이트 결과값을 얻어 분석하였습니다. 
+인턴십 및 졸업논문 프로젝트로, 식물 및 씨앗 이미지 데이터세트에 대해서 회사에서 사용하는 회귀 및 분류 모델이,  이미지 데이터의 어떤 부분(픽셀)으로 인해서 모델이 예측 결과값을 내놓는지에 블랙박스이므로, 모델을 예측 결정을 이해하기 위해 또 모델의 신뢰도에 대한 프로젝트입니다. 
+식물의 종자를 파는 Rijk Zwaan회사에서 제공한 이미지 데이터와 사용하는 회귀 및 분류 모델을 attribution 모델들에 적용하여 테스트 진행하였고, 이미지 데이터에서 하이라이트 결과값을 얻어 분석하였습니다. 
 
 ### 프로젝트 사용 라이브러리
 PyTorch Grad-CAM(Gradient-weighted Class Activation Mapping) implementation code [by kazuto](https://github.com/kazuto1011/grad-cam-pytorch) 이용,
 [PyTorch Captum Library](https://github.com/pytorch/captum), [Torchray Library](https://facebookresearch.github.io/TorchRay/attribution.html) Attribution 모델들 적용. 
+
+### 적용된 attribution models 기여도 모델들
+Captum
+- Intergrated Gradients (Gradient based method)
+- Gradient SHAP (Gradient based method)
+- Noise Tunnel with GradientsSHAP
+- Layer Conductance (Layer based method)
+- Layer Gradient X Activation
+<br>
+
+TorchRay - Backpropagation methods
+- Gradient 
+- Deconvolution
+- Guided backpropagation
+- Grad-CAM
+- Excitation backpropagation
+- Linear Approximation
 
 ### 이미지 데이터
 (1) Cucumber Leaf 오이 잎 - Controlled environment taken image, Mobile phone taken image in  greenhouse <br>
