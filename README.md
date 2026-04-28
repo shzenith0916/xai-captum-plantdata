@@ -1,55 +1,157 @@
-# xai-captum-plantdata
+🌐 **English** | [한국어](README.ko.md)
 
-인턴십 및 졸업논문 프로젝트로, 식물 및 씨앗 이미지 데이터세트에 대해서 회사에서 사용하는 회귀 및 분류 모델이,  이미지 데이터의 어떤 부분(픽셀)으로 인해서 모델이 예측 결과값을 내놓는지에 블랙박스이므로, 모델을 예측 결정을 이해하기 위해 또 모델의 신뢰도에 대한 프로젝트입니다. 
-식물의 종자를 파는 Rijk Zwaan회사에서 제공한 이미지 데이터와 사용하는 회귀 및 분류 모델을 attribution 모델들에 적용하여 테스트 진행하였고, 이미지 데이터에서 하이라이트 결과값을 얻어 분석하였습니다. 
+# Explainable AI for Plant & Seed Quality Models
+**Interpreting deep learning predictions on cucumber leaf, X-ray pepper seed, and asparagus datasets — a master's thesis in collaboration with Rijk Zwaan**
 
-### 프로젝트 사용 라이브러리
-PyTorch Grad-CAM(Gradient-weighted Class Activation Mapping) implementation code [by kazuto](https://github.com/kazuto1011/grad-cam-pytorch) 이용,
-[PyTorch Captum Library](https://github.com/pytorch/captum), [Torchray Library](https://facebookresearch.github.io/TorchRay/attribution.html) Attribution 모델들 적용. 
+> **M.Sc. Thesis — JADS (Jheronimus Academy of Data Science)**
+> *Joint program of TU Eindhoven & Tilburg University, 2021*
+---
 
-### 적용된 attribution models 기여도 모델들
-Captum
-- Intergrated Gradients (Gradient based method)
-- Gradient SHAP (Gradient based method)
-- Noise Tunnel with GradientsSHAP
-- Layer Conductance (Layer based method)
-- Layer Gradient X Activation
-<br>
+## 🎯 TL;DR
 
-TorchRay - Backpropagation methods
-- Gradient 
-- Deconvolution
-- Guided backpropagation
-- Grad-CAM
-- Excitation backpropagation
-- Linear Approximation
+This project applies 12 attribution methods to interpret production classification and regression models from **Rijk Zwaan**, one of the top-4 global vegetable seed companies. The goal: understand *which pixels* drive model decisions on three plant/seed datasets, and use these insights to validate model trustworthiness for industrial use.
 
-### 이미지 데이터
-(1) Cucumber Leaf 오이 잎 - Controlled environment taken image, Mobile phone taken image in  greenhouse <br>
-(2) Pepper Seed 후추씨 - X-ray taken image <br>
-(3) Asparagus 아스파라거스 - Mobile phone taken image <br>
+**Key outcomes**:
+- **Grad-CAM** delivered the most human-interpretable visualizations across all three datasets
+- Attribution maps revealed a **data-collection flaw** (residual dirt at image corners affecting predictions) that controlled-environment hardware alone could not solve
+- Discovered a **new human-interpretable feature** for asparagus quality: stem curvature
+- Delivered **64,000 attribution visualizations of X-ray pepper seeds** to Rijk Zwaan's seed R&D team for downstream domain research
 
-### 전처리 
-(1.1) 블랙박스 오이잎 이미지 - 특별히 제작한 까만 박스에서 촬영하여, 오이잎을 제외한 부분이 이미 까만색으로 전처리 없이 attribution 모델들 테스트 진행하였습니다. <br>
-(1.2) 그린하우스 오이잎 이미지 - 핸드폰으로 촬영된 이미지로 노이즈가 심해서, attribution 모델들 테스트 시 회사의 분류모델이 잘 예측하지 못하는 결과 확인하였습니다. 다시 전처리 후, 
-attribution 모델들을 적용시, 분류 모델이 잘 예측하는 결과를 확인하였습니다. <br>
-(2) 엑스레이 후추씨 이미지 - attribution 모델 적용시 회귀모델이 잘 예측하는 결과를 보였으나, 전처리 효과 확인 위해 따로 opencv에서 Image Denoising을 이용하여 전처리 후 
-다시 테스트 진행하였습니다. <br>
-(3) 아스파라거스 이미지 - 샘플이미지 수가 약 200-300개로 데이터가 너무 작아, 윤곽을 세그먼트하여(image segmentation) 따로 저장하는 전처리 후 attribution 모델 테스트 진행하였습니다.  <br>
+---
 
-### 이미지 별 회사에서 사용하는 모델 
-(1 오이잎이 병이 들었다 들지 않았다를 예측하는 회귀모델  <br>
-(2) 후추 씨앗이 발아하기에 적합하다 부적합하다 등의 다섯단계로 예측하는 회귀모델 - abnormal(이상있음), no prime(적절하지 않음), light prime(살짝 적절함), prime(적절), before germination(발아전)  <br>
-(3.1) 다 자란 아스파라거스가 좋은 퀄리티의 아스파라거스인지 예측하는 회귀 모델  <br>
-(3.2) 프로젝트에서 회귀모델에 Unet을 적용한뒤, 모델 메트릭 값이 예전 모델과 비교하였을 때 약 8%정도 향상  <br>
+## 🔬 Research Questions
 
-### 이미지 별 테스트 
-(1) Captum 라이브러리에 있는 다양한 어트리뷰션 모델들로 실험한 결과, 분류모델이 오이잎의 어느 부분 때문에 병이 들었다고 예측하는지 테스트 진행하였습니다.
-핸드폰으로 촬영한 그린하우스 이미지 데이터에 대해서는 오이잎 부분을 제외한 백그라운드에서 꽤 많은 노이즈를 모델에서 주목하는 부분으로 잡아내는 결과를 보여주었습니다.
-반대로 오이잎을 제외한 백그라운드 부분이 까만 이미지 데이터세트에 대해서 어트리뷰션 모델 결과값은 회사에서 예측하였던대로 오이잎의 병든 부분에 분류 모델이 
-주목하고 있다는 결과를 보여주었습니다.
-대부분의 attribution 모델들의 결과는 병든 부분을 일부 혹은 대부분을 하이라이트 했으나, 그 중 Grad-CAM 모델이 비교적 가장 정확하게 잎의 병든 부분을 하이라이트하였습니다. <br> 
-(2) 후추 씨앗 이미지의 어떤 부분/패턴이 후추 씨앗이 발아하기에 적합하다 부적합하다 등의 다섯단계로 예측하는 모델에 영향을 끼치는지에 대해서 다양한 attribution 모델들을 적용했습니다. 
-Grad-CAM 모델의 이미지 결과값이 눈으로 읽고 이해하기에 가장 쉽게 후추 씨앗위로 하이라이트 부분을 표시해주었습니다. 
-attribution 모델 적용 후 하이라이트된 이미지 데이터세트를 회사의 씨앗을 연구하는 부서로 넘겨 추후 더 연구할 수 있도록 하였습니다. <br> 
-(3) Unet이 적용된 회귀모델에 attribution 모델들 적용하여, 아스파라거스 이미지의 어떤 부분이 하이라이트되며, 회귀모델이 예측에 주목하는 부분인지 어트리뷰션 결과값 데이터세트를 아스파라거스를 전담하는 부서에 전달하였습니다. 
+> **RQ1** — Can XAI attribution techniques identify the features driving a model's predictions, and are they human-interpretable?
+> **RQ2** — If interpretable, can these features be leveraged to improve model robustness or generate business insights?
+> **SQ1** — Can preprocessing effects (denoising / segmentation) on model predictions be traced via attribution?
+> **SQ2** — How do capture devices and procedures affect dataset quality?
+
+---
+
+## 🧪 Setup
+
+|                                  |                                                             |
+| -------------------------------- | ----------------------------------------------------------- |
+| **Backbone**                     | SE-ResNet 101 (ImageNet pretrained, transfer learning)      |
+| **Frameworks**                   | PyTorch · Captum · TorchRay · OpenCV · Albumentations       |
+| **Hardware**                     | Ubuntu, NVIDIA Quadro P5000 (8GB VRAM)                      |
+| **Segmentation auxiliary model** | U-Net with `se-resnext101_32x4d` encoder, IOU **0.92–0.94** |
+
+### Attribution Methods Tested (12)
+
+| Library      | Method                       | Type                                          |
+| ------------ | ---------------------------- | --------------------------------------------- |
+| **Captum**   | Integrated Gradients         | Gradient                                      |
+|              | Gradient SHAP                | Gradient                                      |
+|              | Noise Tunnel + Gradient SHAP | Smoothing                                     |
+|              | Layer Conductance            | Layer                                         |
+|              | Layer Gradient × Activation  | Layer                                         |
+|              | Occlusion                    | Perturbation (failed on these datasets)       |
+|              | Layer DeepLIFT               | Layer (couldn't run — in-place ReLU conflict) |
+| **TorchRay** | Gradient (Vanilla backprop)  | Backpropagation                               |
+|              | Deconvolution                | Backpropagation                               |
+|              | Guided Backpropagation       | Backpropagation                               |
+|              | **Grad-CAM**                 | Layer-based ⭐ best across all 3 datasets      |
+|              | Linear Approximation         | Layer                                         |
+|              | Excitation Backpropagation   | Backpropagation                               |
+
+> Grad-CAM implementation by [kazuto1011/grad-cam-pytorch](https://github.com/kazuto1011/grad-cam-pytorch) was used — its transparent heatmap overlay on the input image enabled clearer analysis.
+
+---
+
+## 🌱 Datasets, Tasks & Preprocessing
+
+| Dataset                    | Capture Device                  | Task                                                                                                                | # Images                                               | Preprocessing                          |
+| -------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | -------------------------------------- |
+| **Cucumber Leaf**          | Phenobox (controlled black-box) | Didymella infection severity (0–8) classification                                                                   | ~1,000 (5-fold CV: 863 train / 153 test)               | None                                   |
+| **Pepper Seed (Capsicum)** | Faxitron X-ray                  | Germination status multi-label classification (5 labels: *geen prime / licht prime / prime / voorkiem / abnormaal*) | ~64,000 → down-sampled to 5,000/label (abnormaal: 365) | OpenCV Non-Local Means Denoising (h=4) |
+| **Asparagus**              | Phenobox                        | Quality scoring regression (0–9, average of 3 expert "live scores")                                                 | ~1,400 (5-fold CV)                                     | Denoising (h=6) + U-Net segmentation   |
+
+> Asparagus preprocessing was studied as a 4-way ablation: `raw / denoised / masked / denoised+masked`
+
+---
+
+## 📊 Key Findings
+
+### 1️⃣ Cucumber Leaf — Grad-CAM clearly outperformed Captum gradient methods
+- Captum's gradient-based methods (Integrated Gradients, Gradient SHAP, Noise Tunnel) produced highlights spread evenly across the leaf, failing to localize meaningful regions
+- Grad-CAM successfully localized *Didymella* infection regions across layers 0–4, with the final layer cleanly highlighting the two regions most influential to the model's prediction
+
+### 2️⃣ X-ray Pepper Seed — 64,000 visualizations delivered to R&D 🚀
+- Grad-CAM and Guided Backpropagation revealed that the model focuses on the **seed tip** and **shell lines** as core features
+- Per-label attribution maps showed *which* anatomical region drives each germination-status prediction (e.g., `voorkiem` activates near the two outermost shell lines or the seed tip)
+- **64,000 Grad-CAM and Guided Backpropagation visualizations were transferred to Rijk Zwaan's seed R&D team**, providing the foundation for downstream domain studies
+
+#### Performance — multi-label classification metrics
+|                 | Raw image | Denoised image |
+| --------------- | --------- | -------------- |
+| **Macro F1**    | 0.828     | 0.828          |
+| **Weighted F1** | 0.831     | 0.830          |
+| **Accuracy**    | 0.853     | 0.836          |
+
+→ Quantitative metrics changed little, but **attribution maps clearly showed denoising removing spurious highlights between shell lines** — a qualitative answer to SQ1.
+
+### 3️⃣ Asparagus — A flaw in the data-collection procedure was uncovered 💡
+- On raw images, Grad-CAM revealed that the model was **highlighting residual dirt at image corners** as a key prediction feature
+- Root cause: while the Phenobox controls the imaging environment, *operators* unintentionally introduced dirt residue when placing asparagus on the plate — meaning **the procedure, not the device, is the bottleneck for dataset quality** (SQ2)
+- After segmentation, Grad-CAM uncovered a new human-interpretable feature: **asparagus stem curvature** — straighter stems are predicted as higher quality
+
+#### Performance — regression metrics (R² / MAE)
+|         | Raw       | Denoised | MaskOut | Denoised+MaskOut |
+| ------- | --------- | -------- | ------- | ---------------- |
+| **R²**  | **0.898** | 0.893    | 0.880   | 0.875            |
+| **MAE** | **0.475** | 0.488    | 0.509   | 0.520            |
+
+> ⚠️ Raw input scored highest because the SE-ResNet 101 was trained on raw images and *frozen* during the preprocessing study (inference-only ablation by design). **The contribution of this thesis is attribution-driven model diagnosis, not metric improvement.** Re-training on preprocessed inputs is expected to yield further gains and is noted as future work.
+
+---
+
+## 🔑 Conclusions
+
+- **Grad-CAM consistently produced the most accurate and interpretable attributions** across all three datasets — recommended as the first-line tool for production-model trust diagnosis
+- Attribution methods are **most valuable as data/model diagnostic tools**, not metric-improvement tools — they exposed dirt artifacts, capture-procedure flaws, and a previously unrecognized domain feature (stem curvature)
+- Future work: retrain SE-ResNet 101 on preprocessed inputs, compare alternative backbones, integrate non-image attribution methods such as SHAP and LIME
+
+---
+
+## 📁 Repository Structure
+
+```
+.
+├── cucumber_leaf/
+│   ├── CucumberLeaf_Captum.ipynb
+│   └── CucumberLeaf_Preprocessing_GreenhouseImage.ipynb
+├── pepper_seed/
+│   ├── PepperSeed_Captum.ipynb
+│   ├── PepperSeed_GradCAM.ipynb
+│   └── PepperSeed_TorchRay.ipynb
+├── asparagus/
+│   ├── Asparagus_Captum.ipynb
+│   ├── Asparagus_Grad_CAM.ipynb
+│   └── Asparagus_TorchRay.ipynb
+├── results/                 # Confusion matrices & sample attribution outputs
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 🔒 Note on Data
+
+The original images and model weights are **proprietary to Rijk Zwaan and not publicly shareable**. This repository contains only the analysis notebooks, methodology, and result visualizations (e.g., sample confusion matrices). A reproducible version of the same pipeline applied to a public dataset (e.g., PlantVillage) is planned as a separate folder *(in progress)*.
+
+---
+
+## 📄 Thesis
+
+> **Title**: Explainable artificial intelligence: interpretability of a deep learning business application on seed and plant datasets
+
+The full thesis PDF is available via the [TU Eindhoven / Tilburg University library catalog] 
+🔐 **Access requires a TU/e or Tilburg University account login.**
+If you don't have access, the methodology, methods, and results are summarized in this README. For further questions, feel free to open an [Issue](../../issues).
+
+---
+
+## 👤 Author
+
+**So Hyun Kim** — M.Sc. Data Science and Entrepreneurship, JADS (TU/e × Tilburg University), 2021
